@@ -5,9 +5,13 @@
 package it.polito.tdp.rivers;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.rivers.model.Model;
+import it.polito.tdp.rivers.model.River;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -25,7 +29,7 @@ public class FXMLController {
     private URL location;
 
     @FXML // fx:id="boxRiver"
-    private ComboBox<?> boxRiver; // Value injected by FXMLLoader
+    private ComboBox<River> boxRiver; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtStartDate"
     private TextField txtStartDate; // Value injected by FXMLLoader
@@ -47,6 +51,44 @@ public class FXMLController {
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
+    
+    @FXML
+    void getDatiFiume(ActionEvent event) {
+    	
+    	River fiume = boxRiver.getValue();
+    	
+    	model.riempiFiume(fiume);
+    	
+    	List<LocalDate> dateFiume = model.getDate(boxRiver.getValue());
+    	
+    	txtStartDate.setText(dateFiume.get(0).toString());
+    	txtEndDate.setText(dateFiume.get(1).toString());
+    	
+    	txtNumMeasurements.setText(String.valueOf(fiume.getFlows().size()));
+    	txtFMed.setText(String.valueOf(fiume.getFlowAvg()));
+    	
+    }
+    
+    @FXML
+    void doSimula(ActionEvent event) {
+    	
+    	River fiume = boxRiver.getValue();
+    	
+    	model.riempiFiume(fiume);
+    	
+    	float k = -1;
+    	try {
+    		k = Float.parseFloat(txtK.getText());
+    	}catch(NumberFormatException nfe) {
+    		txtResult.appendText("Errore input non numerico");
+    		return;
+    	}
+    	
+    	double q = model.calculateQ(fiume,k);
+    	
+    	txtResult.appendText(String.valueOf(q));
+    	
+    }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
@@ -61,6 +103,11 @@ public class FXMLController {
     }
     
     public void setModel(Model model) {
+    	
     	this.model = model;
+    	
+    	boxRiver.getItems().addAll(model.getFiumi());
+    	
     }
+    
 }
