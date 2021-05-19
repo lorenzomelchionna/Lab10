@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 
 import it.polito.tdp.rivers.model.Model;
 import it.polito.tdp.rivers.model.River;
+import it.polito.tdp.rivers.model.Simulator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -21,6 +22,7 @@ import javafx.scene.control.TextField;
 public class FXMLController {
 	
 	private Model model;
+	private Simulator simulator;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -72,21 +74,24 @@ public class FXMLController {
     @FXML
     void doSimula(ActionEvent event) {
     	
-    	River fiume = boxRiver.getValue();
+    	txtResult.clear();
     	
-    	model.riempiFiume(fiume);
-    	
-    	float k = -1;
+    	float k;
     	try {
     		k = Float.parseFloat(txtK.getText());
-    	}catch(NumberFormatException nfe) {
-    		txtResult.appendText("Errore input non numerico");
+    	} catch(NumberFormatException nfe) {
+    		txtResult.setText("Inserire un numero");
     		return;
     	}
     	
-    	double q = model.calculateQ(fiume,k);
+    	this.simulator.setK(k);
+    	this.simulator.setFmed(Float.parseFloat(txtFMed.getText()));
+    	this.simulator.setFiume(boxRiver.getValue());
     	
-    	txtResult.appendText(String.valueOf(q));
+    	this.simulator.run();
+    	
+    	txtResult.appendText("Giorni di disservizio: "+this.simulator.getnGiorniDisservizio()+"\n");
+    	txtResult.appendText("Cmed: "+this.simulator.getCmed());
     	
     }
 
@@ -105,6 +110,7 @@ public class FXMLController {
     public void setModel(Model model) {
     	
     	this.model = model;
+    	this.simulator = new Simulator();
     	
     	boxRiver.getItems().addAll(model.getFiumi());
     	

@@ -27,12 +27,4 @@ public class Model {
 		dao.setFlows(fiume);
 	}
 	
-	public double calculateQ(River fiume, float k) {
-		
-		double q = k*fiume.getFlowAvg()*3600*24*30;
-		
-		return q;
-		
-	}
-	
 }
